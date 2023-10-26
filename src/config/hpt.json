@@ -1,0 +1,13 @@
+{
+  "num_trials": 50,
+  "hyperparameters": [
+    {
+      "name": "alpha",
+      "short_desc": "Constant that multiplies the L2 term, controlling regularization strength.",
+      "type": "float",
+      "search_type": "uniform",
+      "range_low": 0,
+      "range_high": 10
+    }
+  ]
+}
