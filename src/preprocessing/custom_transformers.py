@@ -3,6 +3,7 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import PolynomialFeatures
 
 
 class ColumnSelector(BaseEstimator, TransformerMixin):
@@ -205,9 +206,12 @@ class TransformerWrapper(BaseEstimator, TransformerMixin):
 
         # If the transformed data is a numpy array, convert it to a DataFrame
         if isinstance(transformed, np.ndarray):
-            transformed = pd.DataFrame(
-                transformed, columns=self.fitted_vars, index=X.index
-            )
+            if isinstance(self.transformer, PolynomialFeatures):
+                columns = self.transformer.get_feature_names_out()
+            else:
+                columns = self.fitted_vars
+
+            transformed = pd.DataFrame(transformed, columns=columns, index=X.index)
 
         new_X = pd.concat([X.drop(self.fitted_vars, axis=1), transformed], axis=1)
         new_X.columns = list(non_fitted_vars) + list(transformed.columns)

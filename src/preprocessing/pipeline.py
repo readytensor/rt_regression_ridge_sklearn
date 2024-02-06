@@ -14,7 +14,7 @@ from feature_engine.selection import (
     SmartCorrelatedSelection,
 )
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 
 from preprocessing import custom_transformers as transformers
 
@@ -32,6 +32,8 @@ def get_preprocess_pipeline(data_schema: Any, preprocessing_config: dict) -> Pip
     """
 
     num_config = preprocessing_config["numeric_transformers"]
+    polynomial_degree = num_config["polynomial_regression"]["degree"]
+    polynomial_bias = num_config["polynomial_regression"]["include_bias"]
     clip_min_val = num_config["outlier_clipper"]["min_val"]
     clip_max_val = num_config["outlier_clipper"]["max_val"]
     imputation_method = num_config["mean_median_imputer"]["imputation_method"]
@@ -68,6 +70,12 @@ def get_preprocess_pipeline(data_schema: Any, preprocessing_config: dict) -> Pip
         transformer=MeanMedianImputer,
         variables=data_schema.numeric_features,
         imputation_method=imputation_method,
+    )
+    polynomial_transformer = transformers.TransformerWrapper(
+        transformer=PolynomialFeatures,
+        variables=data_schema.numeric_features,
+        degree=polynomial_degree,
+        include_bias=polynomial_bias,
     )
     standard_scaler = transformers.TransformerWrapper(
         transformer=StandardScaler, variables=data_schema.numeric_features
@@ -119,6 +127,7 @@ def get_preprocess_pipeline(data_schema: Any, preprocessing_config: dict) -> Pip
             ("float_caster", float_caster),
             ("missing_indicator_numeric", missing_indicator_numeric),
             ("mean_imputer_numeric", mean_imputer_numeric),
+            ("polynomial_transformer", polynomial_transformer),
             ("standard_scaler", standard_scaler),
             ("outlier_value_clipper", outlier_value_clipper),
             ("cat_most_frequent_imputer", cat_most_frequent_imputer),

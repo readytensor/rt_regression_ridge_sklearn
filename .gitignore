@@ -20,3 +20,5 @@ venv.bak/
 .pytest_cache/
 coverage.xml
 *.cover
+
+.DS_Store
