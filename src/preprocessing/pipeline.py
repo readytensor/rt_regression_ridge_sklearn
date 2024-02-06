@@ -77,11 +77,23 @@ def get_preprocess_pipeline(data_schema: Any, preprocessing_config: dict) -> Pip
         degree=polynomial_degree,
         include_bias=polynomial_bias,
     )
+
+    mockup_poly_transformer = PolynomialFeatures(
+        degree=polynomial_degree, include_bias=polynomial_bias
+    )
+
+    mockup_poly_transformer.fit(
+        pd.DataFrame({k: [0] for k in data_schema.numeric_features})
+    )
+
+    new_feature_names = mockup_poly_transformer.get_feature_names_out()
+
     standard_scaler = transformers.TransformerWrapper(
-        transformer=StandardScaler, variables=data_schema.numeric_features
+        transformer=StandardScaler,
+        variables=new_feature_names,
     )
     outlier_value_clipper = transformers.ValueClipper(
-        fields_to_clip=data_schema.numeric_features,
+        fields_to_clip=new_feature_names,
         min_val=clip_min_val,
         max_val=clip_max_val,
     )
